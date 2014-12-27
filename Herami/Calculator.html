@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="dist/jquery-1.11.2.min.js"></script>
+    <style>
+        table {
+            
+        }
+        td,th {
+            border: solid 1px;
+            min-width:200px;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align:center;direction:rtl;">
+        <table align="center">
+            <tbody>
+                <tr>
+                    <td>
+                        تعداد شروع کننده
+                    </td>
+                    <td>
+                        <input id="Txt_sp" type="text" value="1" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        تعداد اختیار
+                    </td>
+                    <td>
+                        <input id="Txt_c" type="text" value="2" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        تعداد سودهی
+                    </td>
+                    <td>
+                        <input id="Txt_p" type="text" value="6" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        حداقل تعداد دوره سودهی
+                    </td>
+                    <td>
+                        <input id="Txt_pm" type="text" value="4" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                         آیا شرط سودهی بزرگتر لحاظ شود
+                    </td>
+                    <td>
+                        <input id="Max_Pn" type="checkbox" checked="checked" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        تعداد دوره توقف
+                    </td>
+                    <td>
+                        <input id="Txt_S" type="text" value="6" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                       جمعیت هدف
+                    </td>
+                    <td>
+                        <input id="Txt_tp" type="text" value="70000000" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input id="Button1" type="button" value="محاسبه" onclick="start();" />
+        <br />
+        <br />
+        <table align="center" style="direction:ltr;text-align:center;">
+            <thead>
+                <tr>
+                    <th>دوره</th>
+                    <th>تعداد افراد جدید</th>
+                    <th>تعداد کل</th>
+                    <th>تعداد افراد سود کرده</th>
+                </tr>
+            </thead>
+            <tbody id="result"></tbody>
+        </table>
+        
+        <script>
+            var data = new Array();
+            var c = 0;
+            var s = 0;
+            function start() {
+                data = new Array();
+                var t0 = new Object();
+                t0.t = Number($('#Txt_sp').val());
+                t0.f = 0;
+                t0.n = 0;
+                t0.ts=0;
+                data.push(t0);
+                c = Number($('#Txt_c').val());
+                s = Number($('#Txt_S').val());
+                var last_Total = t0.t;
+                var tp = Number($('#Txt_tp').val());
+                var counter = 1;
+                while (last_Total <= tp) {
+                    var newData = new Object();
+                    newData.f = calculate_f(counter);
+                    newData.n = counter;
+                    newData.t = calculate_t(newData.f, counter);
+                    newData.ts=0;
+                    data.push(newData);
+                    last_Total = newData.t;
+                    counter++;
+                }
+                calculate_ts();
+                print();
+            }
+
+            function calculate_ts() {
+                var pn = calculate_pn();
+                for (a = 0; a < data.length; a++) {
+                    var index = a - pn;
+                    if (index >= 0) {
+                        data[a].ts = data[index].t;
+                    }
+                }
+            }
+
+            function calculate_pn() {
+                var p = Number($('#Txt_p').val());
+                var pm = Number($('#Txt_pm').val());
+                var p_n = 0;
+                for (a = 1; a < data.length; a++) {
+                    if (data[a].t - 1 >= p) {
+                        p_n = a;
+                        break;
+                    }
+                }
+                var pn = 0;
+                if ($('#Max_Pn').is(':checked')) {
+                    pn = Math.max(pm, p_n);
+                } else {
+                    pn = Math.min(pm, p_n);
+                }
+                return pn;
+            }
+
+            function print() {
+                var result = " ";
+                $.each(data, function (index, value) {
+                    result += "<tr>"
+                    result += "<td>" + value.n.toString() + "</td>";
+                    result += "<td>" + value.f.toString() + "</td>";
+                    result += "<td>" + value.t.toString() + "</td>";
+                    result += "<td>" + value.ts.toString() + "</td>";
+                    result += "</tr>"
+                });
+                $('#result').html(result);
+            }
+            function calculate_f(n) {
+                var index0 = n - 1;
+                var index1 = n - (s+1);
+                var sc = 0;
+                if (index1 >= 0) sc = data[index1].t * c;
+                var f = data[index0].t * c - sc;
+                return f;
+            }
+            function calculate_t(f_n,n) {
+                var t = f_n + data[n - 1].t;                
+                return t;
+            }
+            
+        </script>
+    </div>
+</body>
+</html>
