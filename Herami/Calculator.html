@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <title></title>
     <script src="dist/jquery-1.11.2.min.js"></script>
+    <script src="dist/chart.min.js"></script>
     <style>
         table {
             
         }
         td,th {
             border: solid 1px;
-            min-width:200px;
         }
     </style>
 </head>
@@ -87,11 +87,23 @@
                     <th>تعداد افراد جدید</th>
                     <th>تعداد کل</th>
                     <th>تعداد افراد سود کرده</th>
+                    <th>درصد افراد سود کرده</th>
+                    <th>تعداد افراد بازنده</th>
+                    <th>درصد افراد بازنده</th>
                 </tr>
             </thead>
             <tbody id="result"></tbody>
         </table>
-        
+        <div>
+            نمایش نمودار دوره
+            <select id="TurnSelect">
+                
+            </select>
+        </div>
+        <div id="canvas-holder">
+            <canvas id="chart-area" width="300" height="300"></canvas>
+        </div>
+
         <script>
             var data = new Array();
             var c = 0;
@@ -154,16 +166,46 @@
 
             function print() {
                 var result = " ";
+                var options = $("#TurnSelect");
                 $.each(data, function (index, value) {
-                    result += "<tr>"
+                    result += "<tr>";
                     result += "<td>" + value.n.toString() + "</td>";
                     result += "<td>" + value.f.toString() + "</td>";
                     result += "<td>" + value.t.toString() + "</td>";
                     result += "<td>" + value.ts.toString() + "</td>";
-                    result += "</tr>"
+                    result += "<td>" + (value.ts*100/value.t).toString() + "</td>";
+                    result += "<td>" + (value.t-value.ts).toString() + "</td>";
+                    result += "<td>" + ((value.t - value.ts) * 100 / value.t).toString() + "</td>";
+                    result += "</tr>";
+                    options.append($("<option />").val(value.n.toString()).text(value.n.toString()));
                 });
+                options.on('change', function () {
+                    ChangeTurn(this.value); // or $(this).val()
+                });
+                options.val((data.length - 1).toString());
+                ChangeTurn((data.length - 1).toString());
                 $('#result').html(result);
             }
+
+            function ChangeTurn(turn) {
+                var pieData=new Array();
+                var data1 = new Object();
+                var value = data[Number(turn)];
+                data1.value = value.t - value.ts;
+                data1.color = "#F7464A";
+                data1.highlight = "#FF5A5E";
+                data1.label = "بازنده";
+                var data2 = new Object();
+                data2.value = value.ts;
+                data2.color = "#46BFBD";
+                data2.highlight = "#5AD3D1";
+                data2.label = "سود کرده";
+                pieData.push(data1);
+                pieData.push(data2);
+                var ctx = document.getElementById("chart-area").getContext("2d");
+                window.myPie = new Chart(ctx).Pie(pieData);
+            }
+
             function calculate_f(n) {
                 var index0 = n - 1;
                 var index1 = n - (s+1);
