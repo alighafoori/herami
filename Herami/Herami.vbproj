@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Calculator.html" />
+    <Content Include="dist\Chart.min.js" />
     <Content Include="dist\jquery-1.11.2.min.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
