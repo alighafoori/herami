@@ -169,6 +169,7 @@
             function print() {
                 var result = " ";
                 var options = $("#TurnSelect");
+				options.empty();
                 $.each(data, function (index, value) {
                     result += "<tr>";
                     result += "<td>" + value.n.toString() + "</td>";
